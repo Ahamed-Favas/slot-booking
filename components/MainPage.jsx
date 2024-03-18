@@ -108,7 +108,7 @@ function MainPage() {
                             <br />
                             <h2 className="text-2xl">Boys</h2>
                             {t.applicants.map((applicant, index) => (
-                                <div>
+                                <div key={index}>
                                     <span key={index} className="text-2xl">{index + 1}. {applicant[1]} - {applicant[0]} </span>
                                     <br />
                                 </div>
