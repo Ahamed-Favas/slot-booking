@@ -1,14 +1,15 @@
-import LoginForm from '@/components/LoginForm'
+import CreateAccount from '@/components/CreateAccount'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import { authOptions } from './api/auth/[...nextauth]/route'
+import { authOptions } from '../api/auth/[...nextauth]/route'
 
-async function Home() {
+async function page() {
   const session = await getServerSession(authOptions)
   if (session){redirect("/main")}
+
   return (
-    <div><LoginForm/></div>
+    <div><CreateAccount/></div>
   )
 }
 
-export default Home
+export default page
