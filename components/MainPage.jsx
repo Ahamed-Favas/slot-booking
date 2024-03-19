@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 
 const getWorks = async (setJobs, setLoading) => {
     try {
-        const jobs_res = await fetch('api/getWork');
+        const jobs_res = await fetch('api/getWork',{ cache: 'no-store' });
         const { works } = await jobs_res.json();
         if (works) {
             setLoading(false);
