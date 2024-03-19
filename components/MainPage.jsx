@@ -4,18 +4,22 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 
-const getWorks = async (setJobs, setLoading) => {
+export async function getServerSideProps(){
     try {
         const jobs_res = await fetch('api/getWork');
         const { works } = await jobs_res.json();
-        if (works) {
-            setLoading(false);
-            setJobs(works.slice().reverse());
-        }
+        return {props:{works}}
+        // if (works) {
+        //     setLoading(false);
+        //     setJobs(works.slice().reverse());
+        // }
     } catch (error) {
         console.log(error);
     }
-};
+}
+// const getWorks = async (setJobs, setLoading) => {
+    
+// };
 const rmUser = async (key, curr_user_phone, curr_user) => {
     try {
         await fetch('api/rmUser', { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, curr_user_phone, curr_user }) })
@@ -35,13 +39,16 @@ const AddUser = async (key, curr_user_phone, curr_user) => {
     }
 };
 
-function MainPage() {
+function MainPage({works}) {
     const [loading, setLoading] = useState(true);
     const [jobs, setJobs] = useState([]);
     useEffect(() => {
-        // Call getWorks with setJobs as argument
-        getWorks(setJobs, setLoading);
+        if (works) {
+            setLoading(false);
+            setJobs(works);
+        }
     }, []);
+
     const { data: session } = useSession();
     const curr_user = session?.user?.name;
     const curr_user_phone = session?.user?.email
