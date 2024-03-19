@@ -54,7 +54,7 @@ function CreateAccount() {
         <h1 className="text-xl font-bold my-4">Request Account</h1>
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
           <input type="text" placeholder="Name" onChange={(e) => { setName(e.target.value) }}></input>
-          <input minLength="10" maxLength="10" type="number" placeholder="Phone" onChange={(e) => { setPhone(e.target.value) }}></input>
+          <input type="tel" minLength="10" maxLength="10" placeholder="Phone" onChange={(e) => { setPhone(e.target.value) }}></input>
           <button className="bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-0.5">Submit</button>
           <Link className="underline text-right text-sm mt-0" href={'/'}>Login</Link>
           {error && (
