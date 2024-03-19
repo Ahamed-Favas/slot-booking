@@ -39,9 +39,17 @@ function MainPage() {
     const [loading, setLoading] = useState(true);
     const [jobs, setJobs] = useState([]);
     useEffect(() => {
-        // Call getWorks with setJobs as argument
-        getWorks(setJobs, setLoading);
-    }, []);
+        const fetchData = async () => {
+            // Call getWorks with setJobs and setLoading as arguments
+            await getWorks(setJobs, setLoading);
+        };
+    
+        // Call fetchData function when the component mounts and whenever setJobs or setLoading changes
+        fetchData();
+    
+        // Add setJobs and setLoading to the dependency array
+    }, [setJobs, setLoading]);
+    
     const { data: session } = useSession();
     const curr_user = session?.user?.name;
     const curr_user_phone = session?.user?.email
