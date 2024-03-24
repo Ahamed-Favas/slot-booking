@@ -2,20 +2,8 @@
 import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { pusherClient } from "@/lib/pusher";
 import { useSession } from "next-auth/react";
-
-const getWorks = async (setJobs, setLoading) => {
-    try {
-        const jobs_res = await fetch('api/getWork',{ cache: 'no-store' });
-        const { works } = await jobs_res.json();
-        if (works) {
-            setLoading(false);
-            setJobs(works.slice().reverse());
-        }
-    } catch (error) {
-        console.log(error);
-    }
-};
 const rmUser = async (key, curr_user_phone, curr_user) => {
     try {
         await fetch('api/rmUser', { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, curr_user_phone, curr_user }) })
@@ -34,28 +22,57 @@ const AddUser = async (key, curr_user_phone, curr_user) => {
         console.log(error);
     }
 };
+function MainPage({ initialData }) {
+    const [loading, setLoading] = useState(false);
+    const [jobs, setJobs] = useState(initialData);
+    const { data: session, status } = useSession()
 
-function MainPage() {
-    const [loading, setLoading] = useState(true);
-    const [jobs, setJobs] = useState([]);
+    // If session is loading, display loading message
+    // const [chngApplicants, setChngApplicants] = useState(initialData)
+    
     useEffect(() => {
-        const fetchData = async () => {
-            // Call getWorks with setJobs and setLoading as arguments
-            await getWorks(setJobs, setLoading);
+
+        const channel = pusherClient.subscribe('work_channel');
+
+        const handleUserEnrolled = (data) => {
+            updateJobs([data.work]);
         };
+
+        const handleApplicantDeleted = (data) => {
+            updateJobs([data.work]);
+        };
+
+        const handleWorkAdded = (data) => {
+            const newJob = [data.work]
+            console.log(newJob)
+            setJobs((prev)=>[...prev,newJob])
+        }
+        const updateJobs = (newJob) => {
+            const filtered = [...jobs].filter(Job => Job._id !== newJob[0]._id);
+            const conct = newJob.concat(filtered)
+            setJobs(conct);
+        };
+        
+        channel.bind('work_added', handleWorkAdded)
+        channel.bind('user_enrolled', handleUserEnrolled);
+        channel.bind('applicant_deleted', handleApplicantDeleted);
+
+        return () => {
+            channel.unbind_all()
+            channel.unsubscribe()
+        };
+
+    }, [jobs]);
     
-        // Call fetchData function when the component mounts and whenever setJobs or setLoading changes
-        fetchData();
-    
-        // Add setJobs and setLoading to the dependency array
-    }, [setJobs, setLoading]);
-    
-    const { data: session } = useSession();
     const curr_user = session?.user?.name;
     const curr_user_phone = session?.user?.email
 
     const isArrayPresent = (arr, target) => {
-        return arr.some(item => JSON.stringify(item) === JSON.stringify(target))
+        if(arr){
+        return arr.some(item => JSON.stringify(item) === JSON.stringify(target))}
+        else{
+            return
+        }
     }
 
     const handleApply = async (index, key, check, vacancy, selectedDateTime_raw) => {
@@ -66,27 +83,27 @@ function MainPage() {
                 alert("Work finished");
                 return;
             }
-            const total_applicants = [...jobs][index].applicants.length
+            const total_applicants = jobs[index].applicants.length
             if (total_applicants >= vacancy && !check) {
                 alert("Vacancy exceeded")
                 return
             }
             if (check) {
                 if (confirm("Do you want to withdraw")) {
-                    const updatedJobs = [...jobs];
+                    // const updatedJobs = [...jobs];
                     await rmUser(key, curr_user_phone, curr_user)
-                    updatedJobs[index].applicants = updatedJobs[index].applicants.filter(applicant => {
-                        return JSON.stringify(applicant) !== JSON.stringify([curr_user_phone, curr_user]);
-                    });
-                    setJobs(updatedJobs);
+                    // updatedJobs[index].applicants = updatedJobs[index].applicants.filter(applicant => {
+                    //     return JSON.stringify(applicant) !== JSON.stringify([curr_user_phone, curr_user]);
+                    // });
+                    // setJobs(updatedJobs);
                     return
                 }
                 return
             }
-            const updatedJobs = [...jobs];
+            // const updatedJobs = [...jobs];
             await AddUser(key, curr_user_phone, curr_user);
-            updatedJobs[index].applicants.push([curr_user_phone, curr_user]);
-            setJobs(updatedJobs);
+            // updatedJobs[index].applicants.push([curr_user_phone, curr_user]);
+            // setJobs(updatedJobs);
         } catch (error) {
             console.log(error);
         }
@@ -99,7 +116,7 @@ function MainPage() {
                 <br />
                 <button className="bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-0.5" onClick={() => signOut()}>Sign Out</button>
             </nav>
-            {loading && (<div>loading...</div>)}
+            { (status === 'loading') && (<div>loading...</div>) }
             {jobs.map((t, index) => (
                 <div key={t._id}>
                     <div className='shadow-lg p-5 rounded-sm space-y-6'>
@@ -115,7 +132,7 @@ function MainPage() {
                             <br />
                             <br />
                             <h2 className="text-2xl">Boys</h2>
-                            {t.applicants.map((applicant, index) => (
+                            {t.applicants && t.applicants.map((applicant, index) => (
                                 <div key={index}>
                                     <span key={index} className="text-2xl">{index + 1}. {applicant[1]} - {applicant[0]} </span>
                                     <br />

@@ -1,19 +1,27 @@
 import { connectMongoDB } from "@/lib/mongodb";
 import Work from "@/models/work";
 import { NextResponse } from "next/server";
+import { pusherServer } from "@/lib/pusher";
 
 export async function POST(req) {
     try {
         const { key, curr_user_phone, curr_user } = await req.json();
         await connectMongoDB();
-        // Find the existing Work document by its ID and update it
-        await Work.findByIdAndUpdate(
+        const work = await Work.findByIdAndUpdate(
             key,
-            { $push: { applicants: [curr_user_phone, curr_user] } },
+            { $addToSet: { applicants: [curr_user_phone, curr_user] } },
             { new: true }
         );
-        return NextResponse.json({ message: "User enrolled" }, { status: 201 });
-    } catch (error) {
+
+            // Trigger Pusher event
+            const pusherChannel = 'work_channel'; // Change this to your desired Pusher channel
+            const pusherEvent = 'user_enrolled'; // Change this to your desired Pusher event
+            const eventData = { work }; // Include any relevant data you want to send
+            await pusherServer.trigger(pusherChannel, pusherEvent, eventData);
+
+            return NextResponse.json({ message: "User enrolled" }, { status: 201 });
+        }
+    catch (error) {
         console.log(error);
         return NextResponse.json({ message: "An error occurred while enrolling user" }, { status: 500 });
     }
