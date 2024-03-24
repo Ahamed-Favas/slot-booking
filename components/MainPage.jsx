@@ -23,7 +23,7 @@ const AddUser = async (key, curr_user_phone, curr_user) => {
     }
 };
 function MainPage({ initialData }) {
-    const [loading, setLoading] = useState(false);
+    const [btnText, setbtnText] = useState("Apply");
     const [jobs, setJobs] = useState(initialData);
     const { data: session, status } = useSession()
 
@@ -44,13 +44,14 @@ function MainPage({ initialData }) {
 
         const handleWorkAdded = (data) => {
             const newJob = [data.work]
-            console.log(newJob)
             setJobs((prev)=>[...prev,newJob])
         }
         const updateJobs = (newJob) => {
-            const filtered = [...jobs].filter(Job => Job._id !== newJob[0]._id);
-            const conct = newJob.concat(filtered)
-            setJobs(conct);
+            const updatedJobs = [...jobs]
+            let jobIndex = -1
+            updatedJobs.forEach((obj, index) => {if(obj._id === newJob[0]._id){jobIndex = index}})
+            updatedJobs[jobIndex] = newJob[0]
+            setJobs(updatedJobs);
         };
         
         channel.bind('work_added', handleWorkAdded)
@@ -110,43 +111,39 @@ function MainPage({ initialData }) {
     };
 
     return (
-        <div>
-            <nav>
-                <Link className="underline text-right text-sm mt-0" href={'/admin'}>Add Event</Link>
-                <br />
-                <button className="bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-0.5" onClick={() => signOut()}>Sign Out</button>
-            </nav>
-            { (status === 'loading') && (<div>loading...</div>) }
-            {jobs.map((t, index) => (
-                <div key={t._id}>
-                    <div className='shadow-lg p-5 rounded-sm space-y-6'>
-                        <div>
-                            <h1 className="text-2xl">Work Details</h1>
-                            <span className="text-2xl">Date - {t.date_time}</span>
-                            <br />
-                            <span className="text-2xl">Location - {t.location}</span>
-                            <br />
-                            <span className="text-2xl">Captain - {t.captain}</span>
-                            <br />
-                            <span className="text-2xl">Vacancy - {t.vacancy}</span>
-                            <br />
-                            <br />
-                            <h2 className="text-2xl">Boys</h2>
-                            {t.applicants && t.applicants.map((applicant, index) => (
-                                <div key={index}>
-                                    <span key={index} className="text-2xl">{index + 1}. {applicant[1]} - {applicant[0]} </span>
-                                    <br />
-                                </div>
-                            ))}
-                            <br />
-                            <button className="bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-0.5" onClick={() => handleApply(index, t._id, isArrayPresent(t.applicants, [curr_user_phone, curr_user]), t.vacancy, t.date_time_raw)}>
-                                {isArrayPresent(t.applicants, [curr_user_phone, curr_user]) ? "Applied" : "Apply"}
-                            </button>
+<div>
+    <nav className="flex justify-end items-center mb-4">
+        <Link className="underline mr-4 text-sm" href={'/admin'}>Add Event</Link>
+        <button className="bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-1 hover:bg-gray-800" onClick={() => signOut()}>Sign Out</button>
+    </nav>
+
+    {status === 'loading' && <div className="text-center">Loading...</div>}
+
+    {jobs.map((t, index) => (
+        <div key={t._id} className="mb-6">
+            <div className='shadow-2xl p-5 rounded-sm space-y-6'>
+                <div>
+                    <h1 className="text-xl mb-2 grid place-items-center w-full">{t.date_time}</h1>
+                    <br />
+                    <p className="text-lg mb-2 ml-2">Location - {t.location}</p>
+                    {t.captain && <p className="text-lg mb-2 ml-2">Captain - {t.captain}</p>}
+                    {t.vacancy && <p className="text-lg mb-2 ml-2">Vacancy - {t.vacancy}</p>}
+                    {(t.applicants.length> 0) && <h2 className="text-2xl mb-1 ml-2">Boys</h2>}
+                    {t.applicants && t.applicants.map((applicant, index) => (
+                        <div key={index} className="text-lg  ml-2">
+                            <span>{index + 1}. {applicant[1]} - {applicant[0]}</span>
                         </div>
-                    </div>
+                    ))}
+
+                    <button className={`bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-1 mt-2 w-full hover:bg-gray-800 `} onClick={() => handleApply(index, t._id, isArrayPresent(t.applicants, [curr_user_phone, curr_user]), t.vacancy, t.date_time_raw)}>
+                        {isArrayPresent(t.applicants, [curr_user_phone, curr_user]) ? "Leave" : "Apply"}
+                    </button>
                 </div>
-            ))}
+            </div>
         </div>
+    ))}
+</div>
+
     );
 }
 
