@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 function AdminLoginForm() {
   const [Key, setKey] = useState("")
   const [error, setError] = useState("")
+  const [btnText, setbtnText] = useState("Submit")
 
   const router = useRouter()
 
@@ -16,6 +17,7 @@ function AdminLoginForm() {
       return
     }
     try {
+      setbtnText("Loading...")
       const exist_res = await fetch('api/adminCheck', {
         method: "POST",
         headers: {
@@ -29,6 +31,7 @@ function AdminLoginForm() {
       }
       else{
         setError("Invalid Key")
+        setbtnText("Submit")
       }
     } catch (error) {
       console.log(error)
@@ -40,7 +43,7 @@ function AdminLoginForm() {
         <h1 className="text-xl font-bold my-4">Admin Login</h1>
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
           <input maxLength="10" type="password" placeholder="Key" onChange={(e) => { setKey(e.target.value) }}></input>
-          <button className="bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-0.5">Submit</button>
+          <button className="bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-0.5">{btnText}</button>
           <Link className="underline text-right text-sm mt-0" href={'/main'}>Go back</Link>
           {
             error && (

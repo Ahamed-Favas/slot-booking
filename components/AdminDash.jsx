@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 function AdminDash() {
+  const [btnText, setbtnText] = useState("Add work")
   const [DateTime, setDateTime] = useState(new Date())
   const [Location, setLocation] = useState("")
   const [Vacancy, setVacancy] = useState(1000)
@@ -29,7 +30,8 @@ function AdminDash() {
     const dayOfWeek = selectedDateTime.toLocaleDateString('en-US', { weekday: 'long' })
     const formattedDateTime = `${dayOfWeek} ${selectedDateTime.getDate()}/${selectedDateTime.getMonth() + 1}/${selectedDateTime.getFullYear()} ${timeString}`;
     try {
-      const reg_res = await fetch('api/addWork', {
+        setbtnText("Adding...")
+        const reg_res = await fetch('api/addWork', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -42,6 +44,7 @@ function AdminDash() {
         router.push('/main')
       }
       else {
+        setbtnText("Add work")
         console.log("Work Added failed")
       }
     }
@@ -58,7 +61,7 @@ function AdminDash() {
         <input  type="text" placeholder="Work Location" onChange={(e) => { setLocation(e.target.value) }}></input>
         <input type="number" placeholder="Available Vacancy" onChange={(e) => { setVacancy(e.target.value) }}></input>
         <input type="text" placeholder="Captain" onChange={(e) => { setCaptain(e.target.value) }}></input>
-        <button className="bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-0.5">Add work</button>
+        <button className="bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-0.5">{btnText}</button>
         <Link className="underline text-right text-sm mt-0" href={'/main'}>Go back</Link>
         {error && (
           <div style={{ display: 'flex', justifyContent: 'center' }}>

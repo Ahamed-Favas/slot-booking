@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { pusherClient } from "@/lib/pusher";
 import { useSession } from "next-auth/react";
-import { useRouter } from 'next/navigation'
 
 const rmUser = async (key, curr_user_phone, curr_user) => {
     try {
@@ -27,8 +26,7 @@ const AddUser = async (key, curr_user_phone, curr_user) => {
 function MainPage({ initialData }) {
     const [jobs, setJobs] = useState(initialData);
     const { data: session, status } = useSession()
-    const router = useRouter();
-    
+
     useEffect(() => {
 
         const channel = pusherClient.subscribe('work_channel');
@@ -40,10 +38,6 @@ function MainPage({ initialData }) {
         const handleApplicantDeleted = (data) => {
             updateJobs([data.work]);
         };
-
-        const handleWorkAdded = (data) => {
-            router.reload()
-        }
         const updateJobs = (newJob) => {
             const updatedJobs = [...jobs]
             let jobIndex = -1
@@ -52,7 +46,6 @@ function MainPage({ initialData }) {
             setJobs(updatedJobs);
         };
         
-        channel.bind('work_added', handleWorkAdded)
         channel.bind('user_enrolled', handleUserEnrolled);
         channel.bind('applicant_deleted', handleApplicantDeleted);
 
@@ -61,7 +54,7 @@ function MainPage({ initialData }) {
             channel.unsubscribe()
         };
 
-    }, [jobs, router]);
+    }, [jobs]);
     
     const curr_user = session?.user?.name;
     const curr_user_phone = session?.user?.email
