@@ -12,6 +12,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <link rel="icon" href="/icon?<generated>" type="image/png" sizes="32x32" />
+      {/* <link rel="icon" href="/favicon.ico" sizes="any" /> */}
       <body className={inter.className}>
         <AuthProvider>{children}</AuthProvider></body>
     </html>

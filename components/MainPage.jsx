@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { pusherClient } from "@/lib/pusher";
 import { useSession } from "next-auth/react";
+import { useRouter } from 'next/navigation'
+
 const rmUser = async (key, curr_user_phone, curr_user) => {
     try {
         await fetch('api/rmUser', { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, curr_user_phone, curr_user }) })
@@ -23,12 +25,9 @@ const AddUser = async (key, curr_user_phone, curr_user) => {
     }
 };
 function MainPage({ initialData }) {
-    const [btnText, setbtnText] = useState("Apply");
     const [jobs, setJobs] = useState(initialData);
     const { data: session, status } = useSession()
-
-    // If session is loading, display loading message
-    // const [chngApplicants, setChngApplicants] = useState(initialData)
+    const router = useRouter();
     
     useEffect(() => {
 
@@ -43,8 +42,7 @@ function MainPage({ initialData }) {
         };
 
         const handleWorkAdded = (data) => {
-            const newJob = [data.work]
-            setJobs((prev)=>[...prev,newJob])
+            router.reload()
         }
         const updateJobs = (newJob) => {
             const updatedJobs = [...jobs]
@@ -91,20 +89,12 @@ function MainPage({ initialData }) {
             }
             if (check) {
                 if (confirm("Do you want to withdraw")) {
-                    // const updatedJobs = [...jobs];
                     await rmUser(key, curr_user_phone, curr_user)
-                    // updatedJobs[index].applicants = updatedJobs[index].applicants.filter(applicant => {
-                    //     return JSON.stringify(applicant) !== JSON.stringify([curr_user_phone, curr_user]);
-                    // });
-                    // setJobs(updatedJobs);
                     return
                 }
                 return
             }
-            // const updatedJobs = [...jobs];
             await AddUser(key, curr_user_phone, curr_user);
-            // updatedJobs[index].applicants.push([curr_user_phone, curr_user]);
-            // setJobs(updatedJobs);
         } catch (error) {
             console.log(error);
         }
@@ -117,8 +107,9 @@ function MainPage({ initialData }) {
         <button className="bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-1 hover:bg-gray-800" onClick={() => signOut()}>Sign Out</button>
     </nav>
 
-    {status === 'loading' && <div className="text-center">Loading...</div>}
-
+    {status === 'loading' ? (
+    <div className="text-center">Loading...</div>
+    ) : (<>
     {jobs.map((t, index) => (
         <div key={t._id} className="mb-6">
             <div className='shadow-2xl p-5 rounded-sm space-y-6'>
@@ -138,10 +129,13 @@ function MainPage({ initialData }) {
                     <button className={`bg-black text-white rounded-sm font-bold cursor-pointer px-3 py-1 mt-2 w-full hover:bg-gray-800 `} onClick={() => handleApply(index, t._id, isArrayPresent(t.applicants, [curr_user_phone, curr_user]), t.vacancy, t.date_time_raw)}>
                         {isArrayPresent(t.applicants, [curr_user_phone, curr_user]) ? "Leave" : "Apply"}
                     </button>
+                    <div style={{ textAlign: 'right' }}>{isArrayPresent(t.applicants, [curr_user_phone, curr_user]) ? 
+                        <p className="text-md mt-2 mr-2">*can't leave after this</p> : <></>}
+                    </div>
                 </div>
             </div>
         </div>
-    ))}
+    ))}</>)}
 </div>
 
     );
