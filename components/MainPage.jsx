@@ -61,7 +61,7 @@ function MainPage({ initialData }) {
             channel.unsubscribe()
         };
 
-    }, [jobs]);
+    }, [jobs, router]);
     
     const curr_user = session?.user?.name;
     const curr_user_phone = session?.user?.email
