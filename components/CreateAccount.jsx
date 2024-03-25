@@ -39,6 +39,7 @@ function CreateAccount() {
       if (reg_res.ok) {
         const form = e.target
         form.reset()
+        alert("Registration complete, Please login")
         router.push('/')
       }
       else {

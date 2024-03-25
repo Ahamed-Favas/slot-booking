@@ -78,6 +78,11 @@ function MainPage({ initialData }) {
         try {
             const currentDateTime = new Date();
             const selectedDateTime = new Date(selectedDateTime_raw);
+            if (check && (currentDateTime.getTime() > selectedDateTime.getTime() - (10 * 60 * 60 * 1000)))
+            {
+                alert("Can't leave Now, contact Admin")
+                return
+            }
             if (selectedDateTime < currentDateTime) {
                 alert("Work finished");
                 return;
@@ -130,7 +135,7 @@ function MainPage({ initialData }) {
                         {isArrayPresent(t.applicants, [curr_user_phone, curr_user]) ? "Leave" : "Apply"}
                     </button>
                     <div style={{ textAlign: 'right' }}>{isArrayPresent(t.applicants, [curr_user_phone, curr_user]) ? 
-                        <p className="text-md mt-2 mr-2">*can&apos;t leave after this</p> : <></>}
+                        <p className="text-md mt-2 mr-2">*can&apos;t leave before 10hrs</p> : <></>}
                     </div>
                 </div>
             </div>
