@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Slot booking App",
-  description: "Developed by Favas",
+  description: "Developed by Ahamed Favas",
 };
 
 export default function RootLayout({ children }) {

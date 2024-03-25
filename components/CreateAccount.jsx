@@ -27,6 +27,7 @@ function CreateAccount() {
       const { user } = await exist_res.json()
       if (user) {
         setError("Phone Already Added")
+        return
       }
       const reg_res = await fetch('api/register', {
         method: "POST",
