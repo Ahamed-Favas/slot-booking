@@ -130,7 +130,7 @@ function MainPage({ initialData }) {
                         {isArrayPresent(t.applicants, [curr_user_phone, curr_user]) ? "Leave" : "Apply"}
                     </button>
                     <div style={{ textAlign: 'right' }}>{isArrayPresent(t.applicants, [curr_user_phone, curr_user]) ? 
-                        <p className="text-md mt-2 mr-2">*can't leave after this</p> : <></>}
+                        <p className="text-md mt-2 mr-2">*can&apos;t leave after this</p> : <></>}
                     </div>
                 </div>
             </div>
