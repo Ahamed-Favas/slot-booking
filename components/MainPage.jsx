@@ -71,14 +71,14 @@ function MainPage({ initialData }) {
         try {
             const currentDateTime = new Date();
             const selectedDateTime = new Date(selectedDateTime_raw);
-            if (check && (currentDateTime.getTime() > selectedDateTime.getTime() - (10 * 60 * 60 * 1000)))
-            {
-                alert("Can't leave Now, contact Admin")
-                return
-            }
             if (selectedDateTime < currentDateTime) {
                 alert("Work finished");
                 return;
+            }
+            if (check && (currentDateTime.getTime() > selectedDateTime.getTime() - (10 * 60 * 60 * 1000)))
+            {
+                alert("Can't leave now, contact Captain")
+                return
             }
             const total_applicants = jobs[index].applicants.length
             if (total_applicants >= vacancy && !check) {
@@ -86,7 +86,7 @@ function MainPage({ initialData }) {
                 return
             }
             if (check) {
-                if (confirm("Do you want to withdraw")) {
+                if (confirm("Do you want to withdraw?")) {
                     await rmUser(key, curr_user_phone, curr_user)
                     return
                 }
