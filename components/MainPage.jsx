@@ -128,7 +128,7 @@ function MainPage({ initialData }) {
                         {isArrayPresent(t.applicants, [curr_user_phone, curr_user]) ? "Leave" : "Apply"}
                     </button>
                     <div style={{ textAlign: 'right' }}>{isArrayPresent(t.applicants, [curr_user_phone, curr_user]) ? 
-                        <p className="text-md mt-2 mr-2">*can&apos;t leave before 10hrs</p> : <></>}
+                        <p className="text-md mt-2 mr-2">*Leaving is only allowed up to 10 hours before work begins.</p> : <></>}
                     </div>
                 </div>
             </div>
